@@ -108,6 +108,37 @@ input:focus{outline:3px solid var(--pink);outline-offset:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{background:#fff;color:#141414;border-radius:8px;padding:4px 10px;font:900 16px "Noto Sans KR",sans-serif}
 .chip.new{animation:fl 1.6s ease-out}
+/* admin (관리자 현황) */
+#admin{max-width:920px}
+.astat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.astat .big2{font:400 clamp(40px,10vw,64px)/1 "Black Han Sans",sans-serif}
+.astat small{display:block;font-weight:900;font-size:14px;color:var(--mut)}
+.abtns{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px}
+.abtns .btn{font-size:22px;padding:12px}
+.btn:disabled{background:#bdbdb0;color:#fff;box-shadow:none}
+.alinks{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px;font-weight:700}
+.alinks a,.alinks button{color:var(--ink);background:none;border:0;padding:0;font:inherit;text-decoration:underline;cursor:pointer}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;position:sticky;top:0;z-index:3;background:var(--bg);padding:6px 0}
+.tab{appearance:none;border:3px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 4px;font:900 16px "Noto Sans KR",sans-serif;cursor:pointer}
+.tab b{display:block;font:400 24px "Black Han Sans",sans-serif}
+.tab.on{background:var(--line);color:var(--bg)}
+.alist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.alist li{display:grid;grid-template-columns:2.6em minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
+.alist .rk{font:400 24px "Black Han Sans",sans-serif;text-align:center}
+.alist .who{font:900 17px/1.3 "Noto Sans KR",sans-serif;overflow-wrap:anywhere}
+.alist .who small{display:block;font-weight:700;font-size:13px;color:var(--mut)}
+.alist .sc{font:400 26px "Black Han Sans",sans-serif;text-align:right;white-space:nowrap}
+.badge{display:inline-block;font:900 12px "Noto Sans KR",sans-serif;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px;background:#e8e8e0;color:#141414}
+.badge.run{background:#2f7bff;color:#fff}.badge.fin{background:#141414;color:#e9ff3b}.badge.bad{background:var(--pink);color:#fff}
+.agrp{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:10px}
+.agrp .g{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.agrp .g b{display:flex;justify-content:space-between;font:400 20px "Black Han Sans",sans-serif;margin-bottom:6px}
+.agrp .chip{border:2px solid var(--line);display:inline-block;margin:0 4px 4px 0}
+.ttl{font:400 22px "Black Han Sans",sans-serif;margin:14px 0 6px}
+table.gs{width:100%;border-collapse:collapse;background:var(--card);border:2px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
+table.gs th,table.gs td{padding:8px 10px;border-bottom:1px solid #ddd;text-align:right;white-space:nowrap}
+table.gs th:first-child,table.gs td:first-child{text-align:left}
+.aempty{text-align:center;color:var(--mut);font-weight:700;padding:30px 10px}
 .bempty{color:#c9ccd4;font:900 clamp(18px,1.8vw,26px) "Noto Sans KR",sans-serif;text-align:center;padding:12vh 20px}
 .bfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px clamp(16px,2.4vw,36px);font-size:13px;color:#9aa0ad}
 .conn{font-size:13px;font-weight:700;margin:0}.conn i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#aaa;margin-right:6px;vertical-align:1px}
@@ -198,13 +229,13 @@ input:focus{outline:3px solid var(--pink);outline-offset:2px}
 
 <section class="scr" id="gate">
   <div class="tape"></div>
-  <h1>진행자<br><em>전용 순위판</em></h1>
+  <h1>진행자<br><em>전용 화면</em></h1>
   <div class="card">
     <label for="gPin">관리자 PIN</label>
     <input id="gPin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN 입력">
     <p class="note" id="gMsg" style="margin-top:8px"></p>
   </div>
-  <button class="btn" id="gOk">순위판 열기</button>
+  <button class="btn" id="gOk">열기</button>
   <p class="note">학생은 게임 QR로 접속하세요.</p>
 </section>
 
@@ -222,13 +253,26 @@ input:focus{outline:3px solid var(--pink);outline-offset:2px}
     <p class="bempty" id="bEmpty">QR을 찍고 이름·조를 쓰면 출발선에서 대기합니다</p>
   </div>
   <footer class="bfoot">
-    <p class="conn" id="conn"><i></i><span id="connT">순위판 연결 중…</span><span id="bSus"></span></p>
+    <p class="conn" id="conn"><i></i><span id="connT">순위판 연결 중…</span><span id="bSus"></span> · <a href="#admin" style="color:#c9ccd4">관리자 화면</a> · <a href="#" id="bOut" style="color:#c9ccd4">나가기</a></p>
     <div class="adm">
       <span id="pinBox"><input id="pin" type="password" inputmode="numeric" placeholder="관리자 PIN" autocomplete="off"><button id="pinOk">확인</button><span class="pinmsg" id="pinMsg"></span></span>
       <button class="resetbtn" id="bResetAll">리셋</button>
       <button class="startbtn" id="bStart">출발!</button>
     </div>
   </footer>
+</section>
+
+<section class="scr" id="admin">
+  <div class="tape"></div>
+  <div class="astat card">
+    <div><small id="aLabel">레이스 대기</small><div class="big2" id="aBig">READY</div></div>
+    <div style="text-align:right;font-weight:900;font-size:15px;line-height:1.7">대기 <b id="aW">0</b> · 달리는 중 <b id="aR">0</b><br>결승 <b id="aF">0</b></div>
+  </div>
+  <div class="abtns"><button class="btn" id="aStart">출발!</button><button class="btn sub" id="aReset">리셋</button></div>
+  <p class="note" id="aMsg" style="text-align:center;font-weight:900;min-height:1.4em"></p>
+  <div class="alinks"><a href="#board">큰 화면 순위판 열기</a><button id="aCopyLink">학생 접속 주소 복사</button><button id="aOut">나가기</button><span id="aConn">연결 중…</span></div>
+  <div class="tabs"><button class="tab" data-t="wait"><b id="tW">0</b>대기자</button><button class="tab" data-t="live"><b id="tL">0</b>실시간</button><button class="tab" data-t="res"><b id="tR">0</b>결과</button></div>
+  <div id="aPanel"></div>
 </section>
 
 <section class="scr" id="check">
@@ -449,16 +493,6 @@ function carSvg(col){
   return `<svg viewBox="0 0 120 50" aria-hidden="true"><path d="M6 34 L10 24 Q14 20 24 19 L46 18 L60 8 Q64 6 70 6 L86 6 Q92 6 96 12 L102 20 Q114 22 116 30 L116 36 Q116 40 112 40 L8 40 Q4 40 6 34Z" fill="${col}" stroke="#141414" stroke-width="3"/><path d="M63 11 L84 10 Q89 10 91 14 L95 20 L56 20Z" fill="#bfe9ff" stroke="#141414" stroke-width="2.5"/><rect x="2" y="16" width="10" height="6" rx="2" fill="#141414"/><circle cx="28" cy="40" r="9" fill="#141414"/><circle cx="28" cy="40" r="3.5" fill="#ddd"/><circle cx="94" cy="40" r="9" fill="#141414"/><circle cx="94" cy="40" r="3.5" fill="#ddd"/><path d="M30 28 H52" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/></svg>`;
 }
 const CAR_COLORS=["#ff2e88","#2f7bff","#ffd23f","#2bd46b","#ff7a1a","#9b5cff","#19d3e6","#ff4d4d","#c6ff3b","#ffffff"];
-function gateBoard(){
-  if(store.get("race3-admin")===hashCode(ADMIN_PIN)){initBoard();return}
-  show("gate");$("#gPin").focus();
-  const ok=()=>{
-    if($("#gPin").value!==ADMIN_PIN){$("#gMsg").textContent="PIN이 달라요";$("#gMsg").style.color="var(--pink)";$("#gPin").select();return}
-    store.set("race3-admin",hashCode(ADMIN_PIN));initBoard();
-  };
-  $("#gOk").addEventListener("click",ok);
-  $("#gPin").addEventListener("keydown",e=>{if(e.key==="Enter")ok()});
-}
 function initBoard(){
   show("board");
   const gameUrl=location.origin+location.pathname;
@@ -558,6 +592,7 @@ function initBoard(){
   const clearLanes=()=>{for(const el of els.values())el.remove();els.clear()};
   listenCtl(r=>{if(r.sent<resetAt)return;if(!cur||r.rid!==cur.rid)clearLanes();cur=r;later()},null,
     sent=>{if(sent<=resetAt)return;resetAt=sent;if(cur&&cur.sent<sent){cur=null;clearLanes()}later()});
+  $("#bOut").addEventListener("click",e=>{e.preventDefault();store.del("race3-admin");location.hash=""});
   /* 관리자 출발 버튼 */
   let action="start";
   const ask=a=>{action=a;$("#pinBox").classList.add("on");$("#pin").value="";$("#pinMsg").textContent=a==="reset"?"리셋하려면 PIN":"";$("#pin").focus()};
@@ -573,11 +608,120 @@ function initBoard(){
   $("#pin").addEventListener("keydown",e=>{if(e.key==="Enter")go()});
 }
 
+/* ---------------- 관리자 현황 페이지 ---------------- */
+function gate(next){
+  if(store.get("race3-admin")===hashCode(ADMIN_PIN)){next();return}
+  show("gate");$("#gPin").focus();
+  const ok=()=>{
+    if($("#gPin").value!==ADMIN_PIN){$("#gMsg").textContent="PIN이 달라요";$("#gMsg").style.color="var(--pink)";$("#gPin").select();return}
+    store.set("race3-admin",hashCode(ADMIN_PIN));next();
+  };
+  $("#gOk").addEventListener("click",ok);
+  $("#gPin").addEventListener("keydown",e=>{if(e.key==="Enter")ok()});
+}
+function initAdmin(){
+  show("admin");
+  const results=new Map(),joins=new Map();let cur=null,resetAt=0,tab=null,picked=false;
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const okc=x=>x.c===codeOf(x.n,x.s,x.ok);
+  const rowsNow=()=>cur&&results.get(cur.rid)||new Map();
+  const waiting=()=>{const since=Math.max(cur?cur.sent:0,resetAt),rows=rowsNow(),out=[];for(const [d,j] of joins)if(j.t>=since&&!rows.has(d))out.push({d,...j});return out};
+  const ranked=onlyFin=>{
+    const all=[...rowsNow().values()].filter(x=>!onlyFin||x.f).sort((a,b)=>b.s-a.s||b.ok-a.ok||b.b-a.b||a.at-b.at);
+    const list=all.filter(okc),sus=all.filter(x=>!okc(x));
+    let rk=0;list.forEach((x,i)=>{rk=(i&&x.s===list[i-1].s&&x.ok===list[i-1].ok)?rk:i+1;x.rk=rk});
+    return {list,sus};
+  };
+  const phase=()=>{const now=Date.now();return !cur?"idle":now<cur.startAt?"cd":now<cur.endAt?"run":"end"};
+  const row=(x,kind)=>{
+    const t=x.ok+x.no,rate=t?Math.round(x.ok/t*100):0;
+    const bd=kind==="bad"?'<span class="badge bad">코드 불일치</span>':(x.f?'<span class="badge fin">결승</span>':'<span class="badge run">달리는 중</span>');
+    return `<li><span class="rk">${kind==="bad"?"–":x.rk}</span><span class="who">${esc(x.n)}${bd}<small>${x.g?esc(x.g)+" · ":""}정답 ${x.ok} · 오답 ${x.no} · ${rate}% · 최대연속 ${x.b}</small></span><span class="sc">${x.s}</span></li>`;
+  };
+  function render(){
+    const p=phase(),w=waiting(),{list,sus}=ranked(false),fin=ranked(true);
+    if(!picked)tab=p==="run"?"live":p==="end"?"res":"wait";
+    document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));
+    $("#tW").textContent=w.length;$("#tL").textContent=list.length+sus.length;$("#tR").textContent=fin.list.length;
+    let html="";
+    if(tab==="wait"){
+      if(!w.length)html=`<p class="aempty">${p==="run"?"레이스 진행 중이에요. 지금 들어오는 학생은 남은 시간만큼 합류해요.":"아직 대기자가 없어요. 학생들이 QR로 들어와 준비 완료를 누르면 여기 나와요."}</p>`;
+      else{
+        const by=new Map();for(const x of w){const k=x.g||"조 없음";if(!by.has(k))by.set(k,[]);by.get(k).push(x)}
+        const keys=[...by.keys()].sort((a,b)=>a.localeCompare(b,"ko",{numeric:true}));
+        html=`<div class="agrp">${keys.map(k=>{const a=by.get(k).sort((p,q)=>p.t-q.t);return `<div class="g"><b>${esc(k)}<span>${a.length}명</span></b>${a.map(x=>`<span class="chip">${esc(x.n)}</span>`).join("")}</div>`}).join("")}</div>`;
+      }
+    }else if(tab==="live"){
+      html=list.length||sus.length?`<ul class="alist">${list.map(x=>row(x)).join("")}${sus.map(x=>row(x,"bad")).join("")}</ul>`
+        :`<p class="aempty">${p==="idle"||p==="cd"?"출발하면 20초마다 점수가 들어와요.":"아직 들어온 점수가 없어요."}</p>`;
+    }else{
+      const L=fin.list;
+      if(!L.length)html=`<p class="aempty">${p==="end"?"결과가 들어오는 중이에요. 잠시만요.":"레이스가 끝나면 최종 결과가 여기 나와요."}</p>`;
+      else{
+        const gm=new Map();for(const x of L){const k=x.g||"조 없음";const g=gm.get(k)||{n:0,s:0,best:0};g.n++;g.s+=x.s;g.best=Math.max(g.best,x.s);gm.set(k,g)}
+        const gs=[...gm.entries()].map(([k,g])=>({k,...g,avg:Math.round(g.s/g.n)})).sort((a,b)=>b.avg-a.avg);
+        html=`<button class="btn sub" id="aCopy" style="margin-bottom:10px">결과 복사 (엑셀에 붙여넣기)</button>`+
+          `<ul class="alist">${L.map(x=>row(x)).join("")}${fin.sus.map(x=>row(x,"bad")).join("")}</ul>`+
+          `<p class="ttl">조별 현황</p><table class="gs"><thead><tr><th>조</th><th>인원</th><th>평균</th><th>합계</th><th>최고</th></tr></thead><tbody>${gs.map(g=>`<tr><td>${esc(g.k)}</td><td>${g.n}</td><td>${g.avg}</td><td>${g.s}</td><td>${g.best}</td></tr>`).join("")}</tbody></table>`;
+        const unfinished=list.filter(x=>!x.f).length;
+        if(unfinished)html+=`<p class="note" style="margin-top:8px">아직 최종 기록이 안 들어온 학생 ${unfinished}명 (실시간 탭에서 확인)</p>`;
+      }
+    }
+    $("#aPanel").innerHTML=html;
+    const cp=$("#aCopy");if(cp)cp.addEventListener("click",()=>{
+      const tsv=["순위\t이름\t조\t점수\t정답\t오답\t최대연속"].concat(fin.list.map(x=>[x.rk,x.n,x.g,x.s,x.ok,x.no,x.b].join("\t"))).join("\n");
+      navigator.clipboard.writeText(tsv).then(()=>{cp.textContent="✓ 복사됨 — 엑셀에 붙여넣으세요"},()=>{cp.textContent="복사 실패"});
+    });
+    status();
+  }
+  let pk="",armed=null,armT=null;
+  function status(){
+    const now=Date.now(),p=phase(),rows=rowsNow();
+    if(p!==pk){pk=p;picked=false;later()}
+    let f=0,r=0;for(const x of rows.values())x.f?f++:r++;
+    $("#aW").textContent=waiting().length;$("#aR").textContent=p==="run"?r:0;$("#aF").textContent=f;
+    if(p==="idle"){$("#aLabel").textContent="레이스 대기";$("#aBig").textContent="READY"}
+    else if(p==="cd"){$("#aLabel").textContent="출발까지";$("#aBig").textContent=Math.ceil((cur.startAt-now)/1000)}
+    else if(p==="run"){$("#aLabel").textContent="레이스 진행 중";$("#aBig").textContent=mmss(cur.endAt-now)}
+    else{$("#aLabel").textContent="레이스 종료";$("#aBig").textContent="FINISH"}
+    const s=$("#aStart"),live=p==="cd"||p==="run";s.disabled=live;
+    if(armed!=="start")s.textContent=live?"레이스 중":(cur?"새 레이스 출발!":"출발!");
+  }
+  setInterval(status,250);
+  let rt=null;const later=()=>{clearTimeout(rt);rt=setTimeout(render,250)};
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{tab=b.dataset.t;picked=true;render()}));
+  const es=new EventSource(RES+"/sse?since=all");
+  es.onopen=()=>{$("#aConn").textContent="● 실시간 연결됨"};
+  es.onerror=()=>{$("#aConn").textContent="○ 재연결 중…"};
+  es.onmessage=e=>{
+    let m,x;try{m=JSON.parse(e.data);if(m.event!=="message")return;x=JSON.parse(m.message)}catch(_){return}
+    if(!x||typeof x.d!=="string"||typeof x.n!=="string")return;
+    if(x.t==="j"){joins.set(x.d,{t:(m.time||0)*1000,n:x.n.slice(0,10),g:String(x.g||"").slice(0,8)});later();return}
+    if(typeof x.rid!=="string")return;
+    let rows=results.get(x.rid);if(!rows){rows=new Map();results.set(x.rid,rows)}
+    const prev=rows.get(x.d);if(prev&&prev.f&&x.t!=="f")return;
+    x.s=+x.s||0;x.ok=+x.ok||0;x.no=+x.no||0;x.b=+x.b||0;x.at=+x.at||0;x.n=x.n.slice(0,10);x.g=String(x.g||"").slice(0,8);x.f=x.t==="f";
+    rows.set(x.d,x);later();
+  };
+  listenCtl(r=>{if(r.sent<resetAt)return;cur=r;later()},null,sent=>{if(sent<=resetAt)return;resetAt=sent;if(cur&&cur.sent<sent)cur=null;later()});
+  /* 두 번 눌러야 실행 (실수 방지) */
+  const arm=(key,btn,label,run)=>{
+    if(armed===key){clearTimeout(armT);armed=null;run();return}
+    armed=key;btn.textContent=label;clearTimeout(armT);armT=setTimeout(()=>{armed=null;$("#aReset").textContent="리셋";status()},3000);
+  };
+  const send=(body,msg)=>{$("#aMsg").textContent=msg;post(CTL,body).then(r=>{if(!r.ok)throw 0;setTimeout(()=>$("#aMsg").textContent="",2500)}).catch(()=>{$("#aMsg").textContent="전송 실패 — 다시 눌러주세요"})};
+  $("#aStart").addEventListener("click",()=>arm("start",$("#aStart"),"한 번 더 누르면 출발!",()=>send({type:"start",rid:Math.random().toString(36).slice(2,10)},"출발 신호 보냄!")));
+  $("#aReset").addEventListener("click",()=>arm("reset",$("#aReset"),"한 번 더!",()=>{$("#aReset").textContent="리셋";send({type:"reset"},"리셋 신호 보냄")}));
+  $("#aOut").addEventListener("click",()=>{store.del("race3-admin");location.hash="";});
+  $("#aCopyLink").addEventListener("click",()=>{const u=location.origin+location.pathname;navigator.clipboard.writeText(u).then(()=>{$("#aCopyLink").textContent="✓ 복사됨"},()=>{$("#aCopyLink").textContent=u})});
+}
+
 const upd=()=>{const n=$("#cN").value,s=$("#cS").value.trim(),o=$("#cO").value.trim();$("#cCode").textContent=n.trim()&&s&&o?codeOf(n,+s,+o):"----"};
 ["#cN","#cS","#cO"].forEach(id=>$(id).addEventListener("input",upd));
 window.addEventListener("hashchange",()=>location.reload());
 if(hash==="check")show("check");
-else if(hash==="board")gateBoard();
+else if(hash==="board")gate(initBoard);
+else if(hash==="admin")gate(initAdmin);
 else initPlayer();
 }
 </script>
