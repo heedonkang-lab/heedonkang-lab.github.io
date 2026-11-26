@@ -184,6 +184,7 @@ table.gs th:first-child,table.gs td:first-child{text-align:left}
   </div>
   <button class="btn" id="goBtn">준비 완료!</button>
   <p class="note" id="modeNote"></p>
+  <p class="note" style="text-align:center;margin-top:18px"><a href="#admin" style="color:var(--mut)">진행자 메뉴</a></p>
 </section>
 
 <section class="scr" id="wait">
@@ -236,7 +237,7 @@ table.gs th:first-child,table.gs td:first-child{text-align:left}
     <p class="note" id="gMsg" style="margin-top:8px"></p>
   </div>
   <button class="btn" id="gOk">열기</button>
-  <p class="note">학생은 게임 QR로 접속하세요.</p>
+  <p class="note" style="text-align:center"><a href="#" style="color:var(--ink);font-weight:900">← 게임 첫 화면으로</a></p>
 </section>
 
 <section class="scr" id="board">
@@ -270,7 +271,7 @@ table.gs th:first-child,table.gs td:first-child{text-align:left}
   </div>
   <div class="abtns"><button class="btn" id="aStart">출발!</button><button class="btn sub" id="aReset">리셋</button></div>
   <p class="note" id="aMsg" style="text-align:center;font-weight:900;min-height:1.4em"></p>
-  <div class="alinks"><a href="#board">큰 화면 순위판 열기</a><button id="aCopyLink">학생 접속 주소 복사</button><button id="aOut">나가기</button><span id="aConn">연결 중…</span></div>
+  <div class="alinks"><a href="#board">큰 화면 순위판</a><a href="#check">인증 코드 확인</a><button id="aCopyLink">학생 접속 주소 복사</button><button id="aOut">나가기</button><span id="aConn">연결 중…</span></div>
   <div class="tabs"><button class="tab" data-t="wait"><b id="tW">0</b>대기자</button><button class="tab" data-t="live"><b id="tL">0</b>실시간</button><button class="tab" data-t="res"><b id="tR">0</b>결과</button></div>
   <div id="aPanel"></div>
 </section>
@@ -283,6 +284,7 @@ table.gs th:first-child,table.gs td:first-child{text-align:left}
   <div><label for="cO">정답 수</label><input id="cO" inputmode="numeric"></div>
   <div class="card res"><p class="note">맞는 인증 코드</p><div class="code" id="cCode">----</div></div>
   <p class="note">학생 화면의 코드와 같으면 진짜 기록입니다. 다르면 캡처 조작 의심!</p>
+  <p class="note" style="text-align:center"><a href="#admin" style="color:var(--ink);font-weight:900">← 관리자 화면으로</a></p>
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -712,14 +714,14 @@ function initAdmin(){
   const send=(body,msg)=>{$("#aMsg").textContent=msg;post(CTL,body).then(r=>{if(!r.ok)throw 0;setTimeout(()=>$("#aMsg").textContent="",2500)}).catch(()=>{$("#aMsg").textContent="전송 실패 — 다시 눌러주세요"})};
   $("#aStart").addEventListener("click",()=>arm("start",$("#aStart"),"한 번 더 누르면 출발!",()=>send({type:"start",rid:Math.random().toString(36).slice(2,10)},"출발 신호 보냄!")));
   $("#aReset").addEventListener("click",()=>arm("reset",$("#aReset"),"한 번 더!",()=>{$("#aReset").textContent="리셋";send({type:"reset"},"리셋 신호 보냄")}));
-  $("#aOut").addEventListener("click",()=>{store.del("race3-admin");location.hash="";});
+  $("#aOut").addEventListener("click",()=>{store.del("race3-admin");location.hash=""});
   $("#aCopyLink").addEventListener("click",()=>{const u=location.origin+location.pathname;navigator.clipboard.writeText(u).then(()=>{$("#aCopyLink").textContent="✓ 복사됨"},()=>{$("#aCopyLink").textContent=u})});
 }
 
 const upd=()=>{const n=$("#cN").value,s=$("#cS").value.trim(),o=$("#cO").value.trim();$("#cCode").textContent=n.trim()&&s&&o?codeOf(n,+s,+o):"----"};
 ["#cN","#cS","#cO"].forEach(id=>$(id).addEventListener("input",upd));
 window.addEventListener("hashchange",()=>location.reload());
-if(hash==="check")show("check");
+if(hash==="check")gate(()=>show("check"));
 else if(hash==="board")gate(initBoard);
 else if(hash==="admin")gate(initAdmin);
 else initPlayer();
