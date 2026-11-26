@@ -335,7 +335,7 @@ let phase="form",race=null,cdTimer=null;
 
 /* ---------------- 학생 화면 ---------------- */
 function initPlayer(){
-  const nm=store.get("race3-name");if(nm){$("#nm").value=nm.n||"";$("#grp").value=nm.g||""}
+  store.del("race3-name");
   if(practice){$("#modeNote").textContent="연습 모드 · 30초 · 기록 안 남음";return}
   $("#modeNote").textContent="준비 완료를 누르고 출발 신호를 기다려요";
   listenCtl(onRace,ok=>{$("#waitConn").textContent=ok?"● 출발 신호 연결됨":"○ 연결 다시 시도 중…"},onReset);
@@ -364,7 +364,7 @@ $("#goBtn").addEventListener("click",()=>{
   const n=$("#nm").value.trim(),g=$("#grp").value.trim();
   const bad=!n?$("#nm"):(!g&&!practice?$("#grp"):null);
   if(bad){bad.focus();bad.classList.add("shake");setTimeout(()=>bad.classList.remove("shake"),300);return}
-  st.name=n;st.grp=g;store.set("race3-name",{n,g});
+  st.name=n;st.grp=g;
   try{navigator.wakeLock&&navigator.wakeLock.request("screen").catch(()=>{})}catch(e){}
   if(practice){waitScreen();countdown(Date.now()+3000,()=>Date.now()+DUR*1000);return}
   waitScreen();
