@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>3분 챌린지 레이스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 수련회 레크리에이션 — 시끄럽고 빠르고 유쾌하게
+   IDEA: 운동회 출발선과 전광판 — 결승선 테이프, 번호표
+   PICTURE: 게임판 자체가 그림. 흰 카드 위 문제, 위쪽 타이머 바
+   COLOUR and TYPE: 형광 라임 바탕, 먹색 글씨, 핫핑크 강조 / Black Han Sans + Noto Sans KR
+   LAYOUT: 폰 한 화면, 세로 한 줄, 큰 버튼 */
+:root{color-scheme:light dark;--bg:light-dark(#e9ff3b,#16170f);--ink:light-dark(#141414,#f3f7d0);--card:light-dark(#fff,#24261a);--pink:#ff2e88;--line:light-dark(#141414,#e9ff3b);--mut:light-dark(#4a4a3a,#b9bd9a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Noto Sans KR",system-ui,sans-serif;overflow-x:clip;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.scr{display:none;min-height:100%;max-width:520px;margin:0 auto;padding:20px 18px 28px;flex-direction:column;gap:16px}
+.scr.on{display:flex}
+h1{font:400 clamp(40px,12vw,56px)/1.02 "Black Han Sans",sans-serif;margin:8px 0 0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--pink)}
+.tape{height:14px;background:repeating-linear-gradient(-45deg,var(--line) 0 12px,transparent 12px 24px);border-radius:3px}
+.card{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:18px;box-shadow:6px 6px 0 var(--line)}
+.rules{margin:0;padding-left:1.1em;font-size:15px}.rules li{margin:3px 0}
+label{font-weight:700;font-size:15px}
+input{width:100%;font:700 20px "Noto Sans KR",sans-serif;padding:12px 14px;border:3px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin-top:6px}
+input:focus{outline:3px solid var(--pink);outline-offset:2px}
+.btn{appearance:none;border:3px solid var(--line);background:var(--pink);color:#fff;font:400 26px "Black Han Sans",sans-serif;padding:16px;border-radius:16px;box-shadow:5px 5px 0 var(--line);cursor:pointer;width:100%}
+.btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--line)}
+.btn.sub{background:var(--card);color:var(--ink);font-size:19px;padding:12px}
+.note{font-size:13px;color:var(--mut);margin:0}
+.big{font:400 clamp(72px,26vw,140px)/1 "Black Han Sans",sans-serif;text-align:center;margin:0}
+/* play */
+#play{gap:12px;padding-top:12px}
+.hud{display:flex;justify-content:space-between;align-items:flex-end}
+.hud b{font:400 34px/1 "Black Han Sans",sans-serif}
+.hud span{display:block;font-size:13px;font-weight:700;color:var(--mut)}
+.bar{height:16px;border:3px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.bar i{display:block;height:100%;width:100%;background:var(--line);transition:width .25s linear}
+.hurry .bar i{background:var(--pink)}.hurry #tLeft{color:var(--pink)}
+#stage{flex:1;display:flex;flex-direction:column;gap:14px;position:relative}
+.q{font:900 18px "Noto Sans KR",sans-serif;text-align:center;margin:0}
+.word{font:400 clamp(60px,20vw,96px)/1.1 "Black Han Sans",sans-serif;text-align:center;margin:6px 0;background:#fff;border-radius:12px;padding:8px 0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{appearance:none;border:3px solid var(--line);background:var(--card);color:var(--ink);font:900 24px "Noto Sans KR",sans-serif;min-height:72px;border-radius:14px;box-shadow:4px 4px 0 var(--line);cursor:pointer}
+.opt:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--line)}
+.opt.ox{font:400 58px "Black Han Sans",sans-serif;min-height:120px}
+.grid{display:grid;gap:8px}
+.cell{appearance:none;aspect-ratio:1;border:3px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:400 clamp(26px,9vw,42px) "Black Han Sans",sans-serif;cursor:pointer;padding:0}
+.cell.done{background:var(--line);color:var(--bg)}
+.cell.blank{visibility:hidden}
+.pop{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font:400 44px "Black Han Sans",sans-serif;pointer-events:none;opacity:0;color:var(--pink);text-shadow:3px 3px 0 var(--line)}
+.pop.go{animation:pop .6s ease-out}
+@keyframes pop{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}60%{opacity:1;transform:translate(-50%,-110%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-150%)}}
+.freeze{position:absolute;inset:0;background:rgba(255,46,136,.88);border-radius:18px;display:none;align-items:center;justify-content:center;color:#fff;font:400 40px "Black Han Sans",sans-serif;z-index:5}
+.freeze.on{display:flex}
+.shake{animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+/* result */
+.res{text-align:center}
+.res .name{font:400 30px "Black Han Sans",sans-serif;margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.stats div{border:3px solid var(--line);border-radius:12px;padding:8px 4px;background:var(--card)}
+.stats b{display:block;font:400 26px "Black Han Sans",sans-serif}
+.stats span{font-size:13px;font-weight:700}
+.code{font:400 40px/1 "Black Han Sans",sans-serif;letter-spacing:.12em;color:var(--pink)}
+/* board (큰 화면) */
+#board.on{display:block}
+#board{max-width:none;padding:clamp(16px,2.5vw,36px)}
+.bwrap{display:grid;grid-template-columns:minmax(260px,330px) minmax(0,1fr);gap:clamp(18px,2.5vw,40px);align-items:start}
+.bside{display:flex;flex-direction:column;gap:14px;position:sticky;top:20px}
+.qr{background:#fff;border:3px solid var(--line);border-radius:18px;padding:14px;box-shadow:6px 6px 0 var(--line);display:grid;place-items:center;aspect-ratio:1}
+.qr img,.qr canvas{width:100%!important;height:auto!important;image-rendering:pixelated}
+.url{font:700 15px "Noto Sans KR",sans-serif;margin:0;word-break:break-all;text-align:center}
+.bstat{border:3px solid var(--line);border-radius:16px;background:var(--card);padding:12px 16px}
+.bstat span{display:block;font-weight:700;font-size:15px;color:var(--mut)}
+.bstat b{font:400 clamp(40px,4.4vw,64px)/1.05 "Black Han Sans",sans-serif}
+.conn{font-size:13px;font-weight:700}.conn i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#aaa;margin-right:6px;vertical-align:1px}
+.conn.ok i{background:#0f9d4a}.conn.bad i{background:var(--pink)}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:end;margin-bottom:18px}
+.pd{background:var(--card);border:3px solid var(--line);border-radius:18px;box-shadow:6px 6px 0 var(--line);padding:16px 14px;text-align:center}
+.pd .rk{font:400 clamp(40px,4.5vw,70px)/1 "Black Han Sans",sans-serif;color:var(--pink)}
+.pd .nm{font:900 clamp(20px,2.2vw,32px)/1.2 "Noto Sans KR",sans-serif;overflow-wrap:anywhere}
+.pd .gp{font-size:15px;font-weight:700;color:var(--mut);min-height:1.4em}
+.pd .sc{font:400 clamp(36px,4vw,60px)/1 "Black Han Sans",sans-serif;margin-top:6px}
+.pd.p1{order:2;padding-block:30px;background:var(--pink);color:#fff}.pd.p1 .rk,.pd.p1 .gp{color:#fff}
+.pd.p2{order:1}.pd.p3{order:3}
+.rank{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:8px}
+.rank li{display:grid;grid-template-columns:3.2em minmax(0,1fr) auto;align-items:center;gap:10px;background:var(--card);border:3px solid var(--line);border-radius:12px;padding:8px 14px}
+.rank .r{font:400 26px "Black Han Sans",sans-serif}
+.rank .n{font:900 19px/1.25 "Noto Sans KR",sans-serif;overflow-wrap:anywhere}.rank .n small{display:block;font-size:13px;font-weight:700;color:var(--mut)}
+.rank .s{font:400 30px "Black Han Sans",sans-serif;text-align:right;white-space:nowrap}
+.flash{animation:fl 1.6s ease-out}
+@keyframes fl{0%{background:var(--pink);color:#fff}100%{}}
+.warn{color:var(--pink);font-weight:900}
+@media(max-width:760px){.bwrap{grid-template-columns:minmax(0,1fr)}.bside{position:static}.qr{max-width:240px;margin:0 auto}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none}}
+@media (prefers-reduced-motion:reduce){.pop.go,.shake{animation:none}.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<section class="scr on" id="start">
+  <div class="tape"></div>
+  <h1>3분<br><em>챌린지</em> 레이스</h1>
+  <div class="card">
+    <ol class="rules">
+      <li>색깔·계산·숫자·틀린그림 문제가 섞여서 나와요</li>
+      <li>맞히면 <b>+10점</b>, 연속으로 맞히면 보너스</li>
+      <li>틀리면 <b>−5점</b>, 잠깐 멈춤</li>
+      <li>기회는 <b>딱 한 번!</b> 끝나면 화면을 보여주세요</li>
+    </ol>
+  </div>
+  <div>
+    <label for="nm">이름</label>
+    <input id="nm" maxlength="10" placeholder="예: 김하늘" autocomplete="off">
+  </div>
+  <div>
+    <label for="grp">조 / 학년 (선택)</label>
+    <input id="grp" maxlength="8" placeholder="예: 3조" autocomplete="off">
+  </div>
+  <button class="btn" id="goBtn">준비 완료!</button>
+  <p class="note" id="modeNote"></p>
+</section>
+
+<section class="scr" id="wait">
+  <div class="tape"></div>
+  <h1 id="waitTitle">출발선에서 대기!</h1>
+  <p class="big" id="waitNum">3</p>
+  <p class="note" id="waitNote" style="text-align:center;font-size:16px"></p>
+</section>
+
+<section class="scr" id="play">
+  <div class="hud">
+    <div><span>남은 시간</span><b id="tLeft">3:00</b></div>
+    <div style="text-align:center"><span>연속</span><b id="stk">0</b></div>
+    <div style="text-align:right"><span>점수</span><b id="pts">0</b></div>
+  </div>
+  <div class="bar"><i id="barI"></i></div>
+  <div class="card" id="stage"></div>
+</section>
+
+<section class="scr" id="result">
+  <div class="tape"></div>
+  <div class="card res">
+    <p class="note" id="rMode">최종 기록</p>
+    <p class="name" id="rName"></p>
+    <p class="big" id="rScore">0</p>
+    <div class="stats">
+      <div><b id="rOk">0</b><span>정답</span></div>
+      <div><b id="rNo">0</b><span>오답</span></div>
+      <div><b id="rRate">0%</b><span>정답률</span></div>
+    </div>
+  </div>
+  <div class="card res">
+    <p class="note">인증 코드 · 종료 시각</p>
+    <div class="code" id="rCode">----</div>
+    <p class="note" id="rTime" style="margin-top:6px"></p>
+  </div>
+  <p class="note" id="rSend" style="text-align:center;font-weight:700"></p>
+  <p class="note" style="text-align:center">이 화면 그대로 진행자에게 보여주세요. 점수 높은 순서로 줄을 섭니다!</p>
+  <button class="btn sub" id="againBtn" style="display:none">연습 다시 하기</button>
+</section>
+
+<section class="scr" id="board">
+  <div class="bwrap">
+    <aside class="bside">
+      <h1>3분 <em>챌린지</em><br>레이스</h1>
+      <div class="qr" id="qr"></div>
+      <p class="url" id="bUrl"></p>
+      <div class="bstat"><span id="bLabel">기록 도착</span><b id="bBig">0명</b></div>
+      <p class="conn" id="conn"><i></i>순위판 연결 중…</p>
+      <button class="btn sub" id="bReset">순위판 비우기</button>
+    </aside>
+    <main>
+      <div class="podium" id="pod"></div>
+      <ol class="rank" id="rank"></ol>
+      <div class="card" id="bEmpty"><p class="q" style="text-align:left">아직 들어온 기록이 없어요</p><p class="note" style="font-size:16px">QR을 찍고 게임을 하면, 끝나는 순간 여기에 자동으로 순위가 올라옵니다.</p></div>
+    </main>
+  </div>
+</section>
+
+<section class="scr" id="check">
+  <div class="tape"></div>
+  <h1>진행자<br><em>코드 확인</em></h1>
+  <div><label for="cN">이름</label><input id="cN" autocomplete="off"></div>
+  <div><label for="cS">점수</label><input id="cS" inputmode="numeric"></div>
+  <div><label for="cO">정답 수</label><input id="cO" inputmode="numeric"></div>
+  <div class="card res"><p class="note">맞는 인증 코드</p><div class="code" id="cCode">----</div></div>
+  <p class="note">학생 화면의 코드와 같으면 진짜 기록입니다. 다르면 캡처 조작 의심!</p>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+{
+const $=s=>document.querySelector(s);
+const SALT="RETREAT-2026";
+const hashCode=s=>{let h=2166136261;for(const c of s){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(36).toUpperCase().padStart(6,"0").slice(-4)};
+const codeOf=(n,sc,ok)=>hashCode(`${n.trim()}|${sc}|${ok}|${SALT}`);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const show=id=>{document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0)};
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+
+/* 모드: #practice(30초 연습) / #t1530(15:30 일제 출발) / #check(진행자) / 없음(각자 출발) */
+const hash=location.hash.slice(1);
+const practice=hash==="practice";
+const boardM=/^board(\d{4})?$/.exec(hash);
+const syncM=/^t(\d{2})(\d{2})$/.exec(boardM&&boardM[1]?"t"+boardM[1]:hash);
+const RACE=syncM?"t"+syncM[1]+syncM[2]:"free";
+const TOPIC="https://ntfy.sh/hdk-retreat-r7k2m9-"+RACE;
+const DUR=practice?30:180;
+const KEY="race3-"+(syncM?hash:"free");
+let syncStart=null;
+if(syncM){const d=new Date();d.setHours(+syncM[1],+syncM[2],0,0);syncStart=d.getTime()}
+
+const st={name:"",grp:"",score:0,ok:0,no:0,streak:0,best:0,endAt:0,frozen:false,tick:null};
+
+function initStart(){
+  if(hash==="check"){show("check");return}
+  if(boardM){initBoard();return}
+  const prev=store.get(KEY);
+  if(prev&&!practice){showResult(prev);return}
+  const nm=store.get("race3-name");if(nm){$("#nm").value=nm.n||"";$("#grp").value=nm.g||""}
+  $("#modeNote").textContent=practice?"연습 모드 · 30초 · 기록 안 남음":
+    syncStart?`${syncM[1]}:${syncM[2]}에 모두 같이 출발합니다`:"버튼을 누르면 3초 뒤 바로 시작해요";
+}
+
+$("#goBtn").addEventListener("click",()=>{
+  const n=$("#nm").value.trim();
+  if(!n){$("#nm").focus();$("#nm").classList.add("shake");setTimeout(()=>$("#nm").classList.remove("shake"),300);return}
+  st.name=n;st.grp=$("#grp").value.trim();
+  store.set("race3-name",{n,g:st.grp});
+  show("wait");
+  if(syncStart){waitSync()}else{countdown(Date.now()+3000)}
+});
+
+function waitSync(){
+  const t=setInterval(()=>{
+    const now=Date.now(),left=syncStart-now;
+    if(now>=syncStart+DUR*1000){clearInterval(t);$("#waitTitle").textContent="레이스가 이미 끝났어요";$("#waitNum").textContent="종료";$("#waitNote").textContent="";return}
+    if(left<=0){clearInterval(t);begin(syncStart+DUR*1000);return}
+    if(left<=3000){$("#waitTitle").textContent="곧 출발!";$("#waitNum").textContent=Math.ceil(left/1000);$("#waitNote").textContent="";return}
+    const s=Math.ceil(left/1000);
+    $("#waitNum").textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+    $("#waitNote").textContent=`${st.name} 님, ${syncM[1]}:${syncM[2]} 출발까지 화면을 켜 두세요`;
+  },200);
+}
+function countdown(at){
+  $("#waitTitle").textContent="출발선에서 대기!";$("#waitNote").textContent="";
+  const t=setInterval(()=>{const l=at-Date.now();if(l<=0){clearInterval(t);begin(Date.now()+DUR*1000);return}$("#waitNum").textContent=Math.ceil(l/1000)},100);
+}
+
+function begin(endAt){
+  Object.assign(st,{score:0,ok:0,no:0,streak:0,best:0,endAt,frozen:false});
+  show("play");hud();next();
+  st.tick=setInterval(tick,200);tick();
+}
+function tick(){
+  const left=Math.max(0,st.endAt-Date.now());
+  const s=Math.ceil(left/1000);
+  $("#tLeft").textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+  $("#barI").style.width=(left/(DUR*1000)*100)+"%";
+  $("#play").classList.toggle("hurry",s<=10);
+  if(left<=0)finish();
+}
+function hud(){$("#pts").textContent=st.score;$("#stk").textContent=st.streak}
+
+function pop(txt){const p=document.createElement("div");p.className="pop go";p.textContent=txt;$("#stage").appendChild(p);setTimeout(()=>p.remove(),650)}
+function good(base){
+  st.streak++;st.ok++;st.best=Math.max(st.best,st.streak);
+  const bonus=Math.min(st.streak-1,5)*2,g=base+bonus;
+  st.score+=g;hud();buzz(15);pop("+"+g);
+}
+function bad(){
+  st.streak=0;st.no++;st.score=Math.max(0,st.score-5);hud();buzz([60,40,60]);
+  const sg=$("#stage");sg.classList.add("shake");setTimeout(()=>sg.classList.remove("shake"),300);
+  st.frozen=true;const f=document.createElement("div");f.className="freeze on";f.textContent="−5 앗!";sg.appendChild(f);
+  setTimeout(()=>{f.remove();st.frozen=false},700);
+}
+const guard=fn=>(...a)=>{if(st.frozen||Date.now()>=st.endAt)return;fn(...a)};
+
+/* ---- 문제 4종 ---- */
+const COLORS=[["빨강","#e8253b"],["파랑","#1f6fff"],["초록","#0f9d4a"],["노랑","#f0b400"],["보라","#8a3ffc"],["검정","#111111"]];
+function qStroop(sg){
+  const w=rnd(COLORS.length);let c=rnd(COLORS.length);while(c===w)c=rnd(COLORS.length);
+  const askInk=Math.random()<.65,ans=askInk?c:w;
+  const pool=shuffle([...Array(COLORS.length).keys()].filter(i=>i!==ans)).slice(0,3);pool.push(ans);shuffle(pool);
+  sg.innerHTML=`<p class="q">${askInk?"글자의 <u>색깔</u>은?":"적혀 있는 <u>글자</u>는?"}</p><p class="word" style="color:${COLORS[c][1]}">${COLORS[w][0]}</p><div class="opts">${pool.map(i=>`<button class="opt" data-i="${i}">${COLORS[i][0]}</button>`).join("")}</div>`;
+  sg.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",guard(()=>{if(+b.dataset.i===ans){good(10);next()}else bad()})));
+}
+function qMath(sg){
+  const op=["+","−","×"][rnd(3)];let a,b,r;
+  if(op==="+"){a=rnd(40)+5;b=rnd(40)+5;r=a+b}else if(op==="−"){a=rnd(50)+20;b=rnd(a-5)+3;r=a-b}else{a=rnd(8)+2;b=rnd(8)+2;r=a*b}
+  const truth=Math.random()<.5;const shown=truth?r:r+[-10,-2,-1,1,2,10][rnd(6)];
+  sg.innerHTML=`<p class="q">맞으면 O, 틀리면 X</p><p class="word" style="color:#141414;font-size:clamp(44px,14vw,64px)">${a} ${op} ${b} = ${shown}</p><div class="opts"><button class="opt ox" data-v="1">O</button><button class="opt ox" data-v="0">X</button></div>`;
+  sg.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",guard(()=>{if((b.dataset.v==="1")===truth){good(10);next()}else bad()})));
+}
+function qOrder(sg){
+  const n=6,cells=shuffle([...Array(9)].map((_,i)=>i<n?i+1:0));let want=1;
+  sg.innerHTML=`<p class="q">1부터 ${n}까지 순서대로 빠르게!</p><div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${cells.map(v=>`<button class="cell${v?"":" blank"}" data-v="${v}">${v||""}</button>`).join("")}</div>`;
+  sg.querySelectorAll(".cell:not(.blank)").forEach(b=>b.addEventListener("click",guard(()=>{
+    const v=+b.dataset.v;if(b.classList.contains("done"))return;
+    if(v===want){b.classList.add("done");want++;buzz(8);if(want>n){good(20);next()}}else bad();
+  })));
+}
+const PAIRS=[["뭉","뭄"],["O","Q"],["갈","걀"],["E","F"],["밤","범"],["6","9"],["M","N"],["곰","공"],["d","b"],["8","B"],["W","V"]];
+function qOdd(sg){
+  const [s,o]=shuffle(PAIRS[rnd(PAIRS.length)].slice());const k=16,at=rnd(k);
+  sg.innerHTML=`<p class="q">하나만 다른 글자를 찾아라!</p><div class="grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[...Array(k)].map((_,i)=>`<button class="cell" data-i="${i}" style="font-size:clamp(22px,7vw,34px)">${i===at?o:s}</button>`).join("")}</div>`;
+  sg.querySelectorAll(".cell").forEach(b=>b.addEventListener("click",guard(()=>{if(+b.dataset.i===at){good(10);next()}else bad()})));
+}
+const QS=[qStroop,qMath,qOrder,qOdd];let last=-1;
+function next(){let i=rnd(QS.length);if(i===last)i=(i+1)%QS.length;last=i;QS[i]($("#stage"))}
+
+function finish(){
+  if(!st.tick)return;clearInterval(st.tick);st.tick=null;buzz(300);
+  const r={n:st.name,g:st.grp,s:st.score,ok:st.ok,no:st.no,best:st.best,at:Date.now(),p:practice,sent:false};
+  if(!practice)store.set(KEY,r);
+  showResult(r);
+}
+function deviceId(){let d=store.get("race3-did");if(!d){d=Math.random().toString(36).slice(2,10);store.set("race3-did",d)}return d}
+let sending=false;
+async function sendResult(r){
+  if(r.p||r.sent||sending)return;sending=true;
+  const msg=JSON.stringify({d:deviceId(),n:r.n,g:r.g,s:r.s,ok:r.ok,no:r.no,b:r.best,at:r.at,c:codeOf(r.n,r.s,r.ok)});
+  const el=$("#rSend");el.textContent="순위판으로 보내는 중…";
+  /* 모두 동시에 끝나면 몇 초씩 흩어서 보냄 */
+  await new Promise(ok=>setTimeout(ok,syncM?rnd(8000):300));
+  const waits=[3,6,10,15,20,30,30,30,45,60];
+  for(let i=0;i<=waits.length;i++){
+    try{
+      const res=await fetch(TOPIC,{method:"POST",body:msg});
+      if(res.ok){r.sent=true;store.set(KEY,r);el.textContent="✓ 순위판에 올라갔어요";sending=false;return}
+    }catch(e){}
+    if(i===waits.length)break;
+    el.textContent=`순위판 전송 재시도 중… (${i+1})`;
+    await new Promise(ok=>setTimeout(ok,waits[i]*1000+rnd(3000)));
+  }
+  el.textContent="순위판 전송 실패 — 이 화면을 진행자에게 보여주세요";sending=false;
+}
+let taps=0;
+function showResult(r){
+  show("result");
+  $("#rMode").textContent=r.p?"연습 기록 (순위 미반영)":"최종 기록";
+  $("#rName").textContent=r.g?`${r.n} · ${r.g}`:r.n;
+  $("#rScore").textContent=r.s;$("#rOk").textContent=r.ok;$("#rNo").textContent=r.no;
+  const tot=r.ok+r.no;$("#rRate").textContent=(tot?Math.round(r.ok/tot*100):0)+"%";
+  $("#rCode").textContent=r.p?"연습":codeOf(r.n,r.s,r.ok);
+  const d=new Date(r.at);$("#rTime").textContent=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")} 종료 · 최대 연속 ${r.best}`;
+  $("#againBtn").style.display=r.p?"block":"none";
+  $("#rSend").textContent=r.p?"":(r.sent?"✓ 순위판에 올라갔어요":"");
+  if(!r.p&&!r.sent)sendResult(r);
+}
+$("#againBtn").addEventListener("click",()=>{show("start");initStart()});
+/* 진행자용: 인증 코드를 5번 연속 탭하면 이 폰 기록 초기화 */
+$("#rCode").addEventListener("click",()=>{taps++;clearTimeout(window.__tp);window.__tp=setTimeout(()=>taps=0,1500);if(taps>=5){store.del(KEY);taps=0;show("start");initStart()}});
+
+/* ---- 큰 화면 순위판 ---- */
+function initBoard(){
+  show("board");
+  const gameUrl=location.origin+location.pathname+(syncM?"#t"+syncM[1]+syncM[2]:"");
+  $("#bUrl").textContent=gameUrl.replace(/^https?:\/\//,"");
+  try{new QRCode($("#qr"),{text:gameUrl,width:512,height:512,correctLevel:QRCode.CorrectLevel.M})}catch(e){$("#qr").textContent="QR을 불러오지 못했어요. 위 주소로 접속하세요."}
+  const CUT="race3-cut-"+RACE;let cut=store.get(CUT)||0;
+  const rows=new Map();let fresh=new Set();
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function render(){
+    const all=[...rows.values()].sort((a,b)=>b.s-a.s||b.ok-a.ok||b.b-a.b||a.at-b.at);
+    const okc=x=>x.c===codeOf(x.n,x.s,x.ok);
+    const list=all.filter(okc),sus=all.filter(x=>!okc(x));
+    let rk=0;list.forEach((x,i)=>{rk=(i&&x.s===list[i-1].s&&x.ok===list[i-1].ok)?rk:i+1;x.rk=rk});
+    const tag=x=>okc(x)?"":' <span class="warn">확인 필요</span>';
+    const meta=x=>{const t=x.ok+x.no;return `${x.g?esc(x.g)+" · ":""}정답 ${x.ok} · ${t?Math.round(x.ok/t*100):0}%`};
+    $("#pod").innerHTML=list.slice(0,3).map(x=>`<div class="pd p${Math.min(x.rk,3)}${fresh.has(x.d)?" flash":""}" style="order:${[0,2,1,3][Math.min(list.indexOf(x)+1,3)]}"><div class="rk">${x.rk}등</div><div class="nm">${esc(x.n)}${tag(x)}</div><div class="gp">${meta(x)}</div><div class="sc">${x.s}</div></div>`).join("");
+    $("#rank").innerHTML=list.slice(3).concat(sus).map(x=>`<li class="${fresh.has(x.d)?"flash":""}"><span class="r">${okc(x)?x.rk:"–"}</span><span class="n">${esc(x.n)}${tag(x)}<small>${meta(x)}</small></span><span class="s">${x.s}</span></li>`).join("");
+    $("#bEmpty").style.display=all.length?"none":"block";
+    fresh=new Set();status();
+  }
+  function status(){
+    const n=rows.size,now=Date.now();
+    if(syncStart){
+      const s0=syncStart,e0=syncStart+DUR*1000,f=ms=>{const s=Math.ceil(ms/1000);return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`};
+      if(now<s0){$("#bLabel").textContent=`${syncM[1]}:${syncM[2]} 출발까지`;$("#bBig").textContent=f(s0-now)}
+      else if(now<e0){$("#bLabel").textContent="레이스 진행 중 · 남은 시간";$("#bBig").textContent=f(e0-now)}
+      else{$("#bLabel").textContent=`최종 순위 · 기록 ${n}명`;$("#bBig").textContent="결승!"}
+    }else{$("#bLabel").textContent="기록 도착";$("#bBig").textContent=n+"명"}
+  }
+  setInterval(status,500);
+  function add(m){
+    let x;try{x=JSON.parse(m.message)}catch(e){return}
+    if(!x||typeof x.d!=="string"||typeof x.n!=="string")return;
+    if((m.time||0)*1000<cut)return;
+    x.s=+x.s||0;x.ok=+x.ok||0;x.no=+x.no||0;x.b=+x.b||0;x.at=+x.at||0;x.n=x.n.slice(0,10);x.g=String(x.g||"").slice(0,8);
+    rows.set(x.d,x);fresh.add(x.d);
+  }
+  let es=null,timer=null;
+  function connect(){
+    if(es)es.close();
+    es=new EventSource(TOPIC+"/sse?since=all");
+    es.onopen=()=>{$("#conn").className="conn ok";$("#conn").lastChild.textContent="실시간 연결됨"};
+    es.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}if(m.event==="message"){add(m);clearTimeout(timer);timer=setTimeout(render,250)}};
+    es.onerror=()=>{$("#conn").className="conn bad";$("#conn").lastChild.textContent="재연결 중…"};
+  }
+  connect();render();
+  let armed=false;
+  $("#bReset").addEventListener("click",()=>{
+    if(!armed){armed=true;$("#bReset").textContent="한 번 더 누르면 비워져요";setTimeout(()=>{armed=false;$("#bReset").textContent="순위판 비우기"},3000);return}
+    cut=Date.now();store.set(CUT,cut);rows.clear();render();armed=false;$("#bReset").textContent="순위판 비우기";
+  });
+}
+
+const upd=()=>{const n=$("#cN").value,s=$("#cS").value.trim(),o=$("#cO").value.trim();$("#cCode").textContent=n.trim()&&s&&o?codeOf(n,+s,+o):"----"};
+["#cN","#cS","#cO"].forEach(id=>$(id).addEventListener("input",upd));
+window.addEventListener("hashchange",()=>location.reload());
+initStart();
+}
+</script>
+</body>
